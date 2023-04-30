@@ -5,6 +5,7 @@ import (
 	"imgo/pkg/util"
 	"imgo/service"
 	"strconv"
+	"time"
 )
 
 type ClientManager struct {
@@ -53,7 +54,9 @@ func (m *ClientManager) Start() {
 			sendMsg := &SendMsg{}
 			json.Unmarshal(msg, sendMsg)
 
-			//保存信息
+			msgS := service.NewMsg()
+			//保存信息(错误处理?)
+			msgS.SaveMsg(time.Now().Add(36400).Unix(), sendMsg.From, sendMsg.To)
 
 			//对所有连接用户进行广播
 			if sendMsg.To == "" {
@@ -124,7 +127,21 @@ func (m *ClientManager) Start() {
 				}
 			} else {
 				//查找聊天信息
+				msgS := service.NewMsg()
+				time, _ := strconv.ParseInt(sendMsg.Content, 10, 64)
+				msgs, err := msgS.FindMsgsByTime(time, sendMsg.From, sendMsg.To)
+				sender := m.Clients[sendMsg.From]
+				if err != nil {
+					for _, item := range msgs {
+						msgByte := []byte(item.Content)
 
+						//聊天内容实时返回
+						sender.Send <- msgByte
+					}
+					//传输完毕后关闭通道
+					close(sender.Send)
+					delete(m.Clients, sender.ID)
+				}
 			}
 		}
 	}

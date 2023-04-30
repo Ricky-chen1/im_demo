@@ -1,10 +1,8 @@
 package dao
 
 import (
-	"imgo/model"
-	"time"
-
 	"github.com/pkg/errors"
+	"imgo/model"
 )
 
 type msgDao struct{}
@@ -25,9 +23,10 @@ func (*msgDao) CreateMsg(msg *model.Msg) error {
 	return nil
 }
 
-func (*msgDao) FindMsgsByTime(expired time.Time) ([]model.Msg, error) {
+func (*msgDao) FindMsgsByTime(expired int64, from string, to string) ([]model.Msg, error) {
 	var msgs []model.Msg
-	if err := DB.Model(&model.Msg{}).Where("expire_time = ?", expired).Find(&msgs).Error; err != nil {
+	if err := DB.Model(&model.Msg{}).
+		Where("expire_time > ? AND from = ? AND to = ?", expired, from, to).Find(&msgs).Error; err != nil {
 		return nil, err
 	}
 	return msgs, nil
