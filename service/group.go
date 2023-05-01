@@ -86,8 +86,9 @@ func (*groupService) IsGroupMember(uid uint, gid uint) (bool, error) {
 
 func (*groupService) JoinGroup(gid uint, uid uint) error {
 	gs := NewGroup()
+	//暂时当作错误处理
 	if ok, err := gs.IsGroupMember(uid, gid); ok {
-		return errors.WithMessage(err, "已加入该群聊")
+		return err
 	}
 
 	gm := dao.NewMember()

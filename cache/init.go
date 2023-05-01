@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"imgo/pkg/util"
 
 	"github.com/redis/go-redis/v9"
@@ -13,6 +14,8 @@ var (
 	redisPassword string
 	RedisClient   *redis.Client
 )
+
+var Ctx context.Context
 
 func init() {
 	file, err := ini.Load("conf/conf.ini")

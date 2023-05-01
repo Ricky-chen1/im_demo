@@ -3,6 +3,7 @@ package service
 import (
 	"imgo/dao"
 	"imgo/model"
+	"imgo/pkg/util"
 )
 
 type msgService struct{}
@@ -16,12 +17,13 @@ func NewMsg() *msgService {
 	return msgInstance
 }
 
-func (*msgService) SaveMsg(time int64, from string, to string) error {
+func (*msgService) SaveMsg(from string, to string) error {
 	msg := dao.NewMsg()
+	now := util.GetTimeUnix()
 	newMsg := &model.Msg{
 		From:       from,
 		To:         to,
-		ExpireTime: time,
+		CreateTime: util.ConvUnixToTime(now),
 	}
 
 	if err := msg.CreateMsg(newMsg); err != nil {
@@ -30,7 +32,7 @@ func (*msgService) SaveMsg(time int64, from string, to string) error {
 	return nil
 }
 
-func (*msgService) FindMsgsByTime(time int64, from string, to string) ([]model.Msg, error) {
+func (*msgService) FindMsgsByTime(time string, from string, to string) ([]model.Msg, error) {
 	msg := dao.NewMsg()
 	msgs, err := msg.FindMsgsByTime(time, from, to)
 	if err != nil {

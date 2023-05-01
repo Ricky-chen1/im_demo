@@ -39,7 +39,7 @@ func (*memberDAO) QueryMemberByID(gid uint) ([]model.User, error) {
 func (*memberDAO) IsGroupMember(uid uint, gid uint) (bool, error) {
 	var count int64
 	err := DB.Model(&model.Group_member{}).Where("uid = ? AND gid = ?", uid, gid).Count(&count).Error
-	if err == nil && count != 0 {
+	if count != 0 {
 		return true, nil
 	}
 	return false, err

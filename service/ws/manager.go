@@ -5,7 +5,6 @@ import (
 	"imgo/pkg/util"
 	"imgo/service"
 	"strconv"
-	"time"
 )
 
 type ClientManager struct {
@@ -56,7 +55,8 @@ func (m *ClientManager) Start() {
 
 			msgS := service.NewMsg()
 			//保存信息(错误处理?)
-			msgS.SaveMsg(time.Now().Add(36400).Unix(), sendMsg.From, sendMsg.To)
+			msgS.SaveMsg(sendMsg.From, sendMsg.To)
+			//设置消息过期时间?
 
 			//对所有连接用户进行广播
 			if sendMsg.To == "" {
@@ -126,12 +126,15 @@ func (m *ClientManager) Start() {
 					}
 				}
 			} else {
-				//查找聊天信息
+				//查找聊天信息(此时内容传递时间)
 				msgS := service.NewMsg()
 				time, _ := strconv.ParseInt(sendMsg.Content, 10, 64)
-				msgs, err := msgS.FindMsgsByTime(time, sendMsg.From, sendMsg.To)
+				timeString := util.ConvUnixToTime(time)
+
+				//按照发送时间查询
+				msgs, err := msgS.FindMsgsByTime(timeString, sendMsg.From, sendMsg.To)
 				sender := m.Clients[sendMsg.From]
-				if err != nil {
+				if err == nil {
 					for _, item := range msgs {
 						msgByte := []byte(item.Content)
 
